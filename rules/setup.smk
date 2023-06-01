@@ -5,7 +5,7 @@ import pandas as pd
 
 rule copy_config_file:
     input:
-        "config.yml"
+        workflow.configfiles[0]
     output:
         file = os.path.join(config["RUN_DIR"], "config.yml")
     shell:
