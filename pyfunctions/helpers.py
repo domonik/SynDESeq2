@@ -109,7 +109,7 @@ def reduce_cluster(df: pd.DataFrame, method: str = "strlen", ascending: bool = T
     df = df[~(df.Cluster == -1)]
     if method == "strlen":
         df["sort_column"] = df["Description"].str.len()
-        ascending = True
+        ascending = ascending
     elif method in df.columns:
         df["sort_column"] = df[method]
         ascending = ascending

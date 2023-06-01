@@ -28,19 +28,20 @@ def volcano_from_deseq_result(
         config: Dict,
         initial_sep: str = ",",
         tag2name: str = None,
-        highlight: list = None
+        highlight: Dict = None
 ):
     hovertemplate = '<i>Y</i>: %{y:.2f}' + \
                     '<br><b>X</b>: %{x}<br>' + \
                     '<b>%{text}</b>'
     df = pd.read_csv(deseq_result, sep="\t", index_col=0)
-    if tag2name is not None:
+    if tag2name:
         tag2name = pd.read_csv(tag2name, sep=initial_sep, index_col=0)
         df = pd.concat((df, tag2name), axis=1)
         df["plot_name"] = df["gene_name"].str.cat(df.index, sep="-")
         df = df.dropna()
     else:
         df["plot_name"] = df.index
+        df["gene_name"] = df.index
     df["-log10padj"] = -1 * np.log10(df["padj"])
     max_log10padj = np.ceil(df["-log10padj"].max())
     min_fc = np.floor(df["log2FoldChange"].min())
