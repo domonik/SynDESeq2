@@ -18,6 +18,7 @@ RUN_DIR: "RUNS/LightPuromycinMinus" # The Directory to store results in
 CountFile: "initialData/LightOnlyDataset.csv" # The counts file to use
 tag2Name: False # Optional tag to gene name mapping file. Set to False if not provided
 initial_sep: ","
+Rlib: "Rlib" # Some R packages will be installed here due to version conflicts
 
 
 # The Counts file will be split at _ seperator and all terms will become conditions
@@ -70,6 +71,11 @@ pAdjCutOff: 0.05
 # Gene Set sizes used by ClutserProfilers GOEnrich function
 minGSSize: 30
 maxGSSize: 500
+
+# KEGGEnrichment Settings - mainly uses GO settings
+
+# organism ID from KEGG DB
+keggOrgID: "syn"
 
 
 # Setting for GO Term enrichment reduction. Will remove redundant GO Terms via Calculating their Semantic Similarity and

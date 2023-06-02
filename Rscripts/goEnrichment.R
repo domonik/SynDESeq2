@@ -1,5 +1,5 @@
 suppressPackageStartupMessages({
-  require(clusterProfiler)
+  library(clusterProfiler, lib.loc = snakemake@config[["Rlib"]])
 })
 package <- list.files(snakemake@input[["annotation_db"]])[1]
 library(basename(package), character.only = TRUE)
@@ -32,8 +32,8 @@ egoBPup <- enrichGO(gene = as.character(rownames(up)),
                     readable = FALSE)
 summary <- data.frame(egoBPup )
 if (dim(summary)[1] == 0){
-  df <- data.frame(matrix(ncol = 9, nrow = 0))
-  x <- c("ONTOLOGY", "ID", "Description", "GeneRatio", "BgRatio", "pvalue", "p.adjust", "qvalue", "geneID")
+  df <- data.frame(matrix(ncol = 10, nrow = 0))
+  x <- c("ONTOLOGY", "ID", "Description", "GeneRatio", "BgRatio", "pvalue", "p.adjust", "qvalue", "geneID", "Count")
   colnames(df) <- x
   summary <- df
 }
@@ -53,8 +53,8 @@ egoBPdown <- enrichGO(gene = as.character(rownames(down)),
 
 summary <- data.frame(egoBPdown )
 if (dim(summary)[1] == 0){
-  df <- data.frame(matrix(ncol = 9, nrow = 0))
-  x <- c("ONTOLOGY", "ID", "Description", "GeneRatio", "BgRatio", "pvalue", "p.adjust", "qvalue", "geneID")
+  df <- data.frame(matrix(ncol = 10, nrow = 0))
+  x <- c("ONTOLOGY", "ID", "Description", "GeneRatio", "BgRatio", "pvalue", "p.adjust", "qvalue", "geneID", "Count")
   colnames(df) <- x
   summary <- df
 }

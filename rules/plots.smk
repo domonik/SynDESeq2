@@ -4,7 +4,7 @@ from pyfunctions.plotting import volcano_from_deseq_result, enrichment_plot_from
 from pyfunctions.helpers import reduce_cluster
 
 include: "deseq.smk"
-include: "goEnrich.smk"
+include: "enrich.smk"
 import os
 
 
@@ -35,7 +35,7 @@ rule volcanoPlot:
 
 rule EnrichmentPlot:
     input:
-        file = os.path.join(config["RUN_DIR"], "PipelineData/GOEnrichment/GOEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv")
+        file = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GOEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv")
     output:
         html = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.html"),
         svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
@@ -57,6 +57,19 @@ rule ClusteredEnrichmentPlot:
     run:
         df = pd.read_csv(input.file, sep="\t")
         df = reduce_cluster(df, method=config["sort_method"], ascending=config["ascending"])
+        fig = enrichment_plot_from_cp_table(df)
+        fig.write_html(output.html)
+        fig.write_image(output.svg)
+
+rule KEGGEnrichmentPlot:
+    input:
+        file = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv")
+    output:
+        html = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.html"),
+        svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
+    run:
+        df = pd.read_csv(input.file, sep="\t")
+        df["ONTOLOGY"] = "KEGG"
         fig = enrichment_plot_from_cp_table(df)
         fig.write_html(output.html)
         fig.write_image(output.svg)

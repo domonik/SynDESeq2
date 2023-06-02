@@ -5,6 +5,7 @@ initialData
 GOTerms
 RUNS
 config.yml
+Rlib
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
