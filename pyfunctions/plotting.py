@@ -80,7 +80,7 @@ def volcano_from_deseq_result(
             mode="markers",
             marker=dict(color=color),
             hovertemplate=hovertemplate,
-            text=df["plot_name"],
+            text=df[df["significant"] == sig]["plot_name"],
             name="Normal Genes",
             showlegend=False
         ))
@@ -129,24 +129,36 @@ def add_boxes(fig: go.Figure, config):
     return fig
 
 
-def enrichment_plot_from_cp_table(df):
+def enrichment_plot_from_cp_table(df, mode="scatter"):
     if len(df) == 0:
         return empty_figure()
 
     def df_div(l):
         return int(l[0]) / int(l[1])
     df["GeneRatio"] = df["GeneRatio"].str.split("/").apply(df_div)
+    if mode == "scatter":
+        fig = px.scatter(
+            df,
+            x="GeneRatio",
+            y="Description",
+            symbol="ONTOLOGY",
+            color="p.adjust",
+            template="plotly_white",
 
-    fig = px.scatter(
-        df,
-        x="GeneRatio",
-        y="Description",
-        symbol="ONTOLOGY",
-        color="p.adjust",
-        template="plotly_white",
+        )
+        fig.update_traces(marker=dict(size=15))
 
-    )
-    fig.update_traces(marker=dict(size=15))
+    elif mode == "bar":
+        fig = px.bar(
+            df,
+            x="GeneRatio",
+            y="Description",
+            color="p.adjust",
+            template="plotly_white",
+        )
+    else:
+        raise ValueError(f"mode: {mode} is not valid")
+    fig.update_layout(LAYOUT)
     fig.update_layout(
         coloraxis_colorbar=dict(
             yanchor="top",
@@ -156,8 +168,7 @@ def enrichment_plot_from_cp_table(df):
             ticks="outside"
         ),
         legend=dict(x=1),
-        yaxis=dict(tickmode="linear")
+        yaxis=dict(tickmode="linear", type="category", dtick=1)
     )
-    fig.update_layout(LAYOUT)
     return fig
 

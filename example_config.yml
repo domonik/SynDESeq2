@@ -103,3 +103,5 @@ highlight: {"GOI": ["purple", ["psbA2", "rnpB", "pilA1", "psaA", "cmpC", "pixG",
 upColor: "rgb(255,0,0)"
 downColor: "rgb(255,165,0)"
 normalColor: "rgb(199,199,199)"
+
+enrichPlotType: "bar" # one of bar or scatter

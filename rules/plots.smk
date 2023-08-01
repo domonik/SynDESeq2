@@ -41,7 +41,7 @@ rule EnrichmentPlot:
         svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
     run:
         df = pd.read_csv(input.file, sep="\t")
-        fig = enrichment_plot_from_cp_table(df)
+        fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
         fig.write_html(output.html)
         fig.write_image(output.svg)
 
@@ -57,7 +57,7 @@ rule ClusteredEnrichmentPlot:
     run:
         df = pd.read_csv(input.file, sep="\t")
         df = reduce_cluster(df, method=config["sort_method"], ascending=config["ascending"])
-        fig = enrichment_plot_from_cp_table(df)
+        fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
         fig.write_html(output.html)
         fig.write_image(output.svg)
 
@@ -70,6 +70,6 @@ rule KEGGEnrichmentPlot:
     run:
         df = pd.read_csv(input.file, sep="\t")
         df["ONTOLOGY"] = "KEGG"
-        fig = enrichment_plot_from_cp_table(df)
+        fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
         fig.write_html(output.html)
         fig.write_image(output.svg)
