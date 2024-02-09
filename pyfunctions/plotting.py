@@ -52,12 +52,17 @@ def volcano_from_deseq_result(
     if highlight is not None:
         for key, value in highlight.items():
             color, names = value
-            to_highlight = df[df.index.isin(names)]
-            if len(to_highlight) == 0:
-                to_highlight = df[df.gene_name.isin(names)]
-                n = ~df["gene_name"].isin(names)
+            if isinstance(names, str):
+                mask = df.gene_name.str.contains(names)
+                to_highlight = df[mask]
+                n = ~mask
             else:
-                n = ~df.index.isin(names)
+                to_highlight = df[df.index.isin(names)]
+                if len(to_highlight) == 0:
+                    to_highlight = df[df.gene_name.isin(names)]
+                    n = ~df["gene_name"].isin(names)
+                else:
+                    n = ~df.index.isin(names)
             df = df[n]
             fig.add_trace(go.Scatter(
                 x=to_highlight["log2FoldChange"],

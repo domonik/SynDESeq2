@@ -1,4 +1,4 @@
-
+library(Rcpp)
 library(GOSemSim)
 package <- list.files(snakemake@input[["annotation_db"]])[1]
 library(basename(package), character.only = TRUE)

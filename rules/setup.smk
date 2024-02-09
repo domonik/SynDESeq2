@@ -75,7 +75,9 @@ rule generateOrgDB:
         go_terms = rules.prepareOrgGOTerms.output.go_terms
     params:
         species=config["species"],
-        genus=config["genus"]
+        genus=config["genus"],
+    conda:
+        "../envs/REnvironment.yml"
     output:
         annotation_db = directory(
             os.path.join(config["GOTermDir"], "AnnotationDBs", ORGANISMID)

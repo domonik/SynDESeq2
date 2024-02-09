@@ -1,7 +1,5 @@
 import pandas as pd
 
-from pyfunctions.plotting import volcano_from_deseq_result, enrichment_plot_from_cp_table
-from pyfunctions.helpers import reduce_cluster
 
 include: "deseq.smk"
 include: "enrich.smk"
@@ -20,6 +18,8 @@ rule volcanoPlot:
             config["RUN_DIR"],"PipelineData/Plots/Volcano/VolcanoPlot_c{condition}_vs_b{baseline}.svg"
         ),
     run:
+        from pyfunctions.plotting import volcano_from_deseq_result
+
         fig = volcano_from_deseq_result(
             deseq_result=input.deseq_result,
             initial_sep=config["initial_sep"],
@@ -40,6 +40,8 @@ rule EnrichmentPlot:
         html = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.html"),
         svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
     run:
+        from pyfunctions.plotting import enrichment_plot_from_cp_table
+
         df = pd.read_csv(input.file, sep="\t")
         fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
         fig.write_html(output.html)
@@ -55,6 +57,10 @@ rule ClusteredEnrichmentPlot:
         svg=os.path.join(
             config["RUN_DIR"],"PipelineData/Plots/Enrichment/ClusteredGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
     run:
+        from pyfunctions.plotting import enrichment_plot_from_cp_table
+        from pyfunctions.helpers import reduce_cluster
+
+
         df = pd.read_csv(input.file, sep="\t")
         df = reduce_cluster(df, method=config["sort_method"], ascending=config["ascending"])
         fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
@@ -68,6 +74,8 @@ rule KEGGEnrichmentPlot:
         html = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.html"),
         svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
     run:
+        from pyfunctions.plotting import enrichment_plot_from_cp_table
+
         df = pd.read_csv(input.file, sep="\t")
         df["ONTOLOGY"] = "KEGG"
         fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
