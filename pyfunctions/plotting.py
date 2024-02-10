@@ -177,3 +177,26 @@ def enrichment_plot_from_cp_table(df, mode="scatter"):
     )
     return fig
 
+
+def compare_results(files, sep, condition, base, padj_cutoff, lfc_cutoff, colors = ("rgb(0, 142, 151) ", "rgb(252, 76, 2)", "#2CA02C"), y: str = "Name"):
+    fig = go.Figure()
+    df = {"Enriched in": [], "Percentage": [], y: []}
+    for name, file in files:
+        df1 = pd.read_csv(file, sep=sep)
+        df1 = df1.dropna()
+        df1_up = df1[(df1["padj"] <= padj_cutoff) & (df1["log2FoldChange"] >= lfc_cutoff)]
+        df1_down = df1[(df1["padj"] <= padj_cutoff) & (df1["log2FoldChange"] <= -lfc_cutoff)]
+        lup = len(df1_up)
+        ldown = len(df1_down)
+        lges = len(df1)
+
+        df["Percentage"] += [(ldown/lges) * 100, ((lges - lup -ldown) / lges) * 100, (lup/lges) * 100]
+        df[y] += [name, name, name]
+        df["Enriched in"] += [base, "not Enriched", condition]
+    df = pd.DataFrame(df)
+    fig = px.bar(df, x="Percentage", y=y, color="Enriched in", color_discrete_sequence=colors)
+    fig.update_traces(marker_line_color='black',
+                      marker_line_width=1)
+    fig.update_xaxes(range=[0, 100])
+
+    return fig

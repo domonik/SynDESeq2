@@ -1,0 +1,14 @@
+
+yName: "Treatment"
+RUN_DIR: "Comparisons/Fractions"
+
+primary:
+  file: "config3.yml"
+  name: "Total Cell"
+
+secondary:
+  file: "config4.yml"
+  name: "Cytosol"
+tertiary:
+  file: "config5.yml"
+  name: "Membrane"
