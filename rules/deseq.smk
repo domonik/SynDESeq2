@@ -3,13 +3,24 @@ import os
 include: "setup.smk"
 
 
+rule extractDESeqResult:
+    input:
+        result = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/DESeqResult.RData"),
+    output:
+        result_table = os.path.join(config["RUN_DIR"], "PipelineData/DESeqResults/DESeqResult_c{condition}_vs_b{baseline}.tsv")
+    params:
+        factor = config["design"].split("+")[-1].split(" ")[-1]
+    conda:
+        "../envs/DESeq2.yml"
+    script:
+        "../Rscripts/extractDESeqResult.R"
 
 
-rule runDESeq2:
+rule runDESeq:
     input:
         counts = rules.dropUnusedSamples.output.counts,
         annotation = rules.dropUnusedSamples.output.annotation,
-        housekeeping = branch(False, then=None, otherwise=config["housekeeping"])
+        housekeeping = branch(config["use-housekeeping"], then=config["housekeeping"], otherwise=None)
     params:
         use_housekeeping =  config["use-housekeeping"],
         housekeeping= config["housekeeping"],
@@ -28,15 +39,5 @@ rule runDESeq2:
         "../Rscripts/deseq.R"
 
 
-rule extractDESeqResult:
-    input:
-        result = rules.runDESeq2.output.deseq_result
-    output:
-        result_table = os.path.join(config["RUN_DIR"], "PipelineData/DESeqResults/DESeqResult_c{condition}_vs_b{baseline}.tsv")
-    params:
-        factor = config["design"].split("+")[-1].split(" ")[-1]
-    conda:
-        "../envs/DESeq2.yml"
-    script:
-        "../Rscripts/extractDESeqResult.R"
+
 

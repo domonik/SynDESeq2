@@ -1,16 +1,29 @@
-include: "rules/enrich.smk"
+import os
+import yaml
+from snakemake.utils import min_version
+min_version("6.0")
 
 configfile: "multilevelConfig.yml"
 
-rule all:
-    input:
-        file =   os.path.join(config["RUN_DIR"], "PipelineData/Multilevel/houskeeping_genes2.tsv")
+with open(config["primary-file"], "r") as handle:
+    config["primary"] = yaml.safe_load(handle)
+
+with open(config["secondary-file"], "r") as handle:
+    config["secondary"] = yaml.safe_load(handle)
+
+
+module other_workflow:
+    snakefile: "snakefile.smk"
+    config: config["primary"]
+
+use rule * from other_workflow as first_*
+
 
 rule runOnLeastDiffRegGenes:
     input:
-        files = expand(rules.extractDESeqResult.output.result_table,  zip, condition=config["conditions"], baseline=config["baselines"])
+        files = expand(rules.first_extractDESeqResult.output.result_table,  zip, condition=config["primary"]["conditions"], baseline=config["primary"]["baselines"])
     output:
-        file =   os.path.join(config["RUN_DIR"], "PipelineData/Multilevel/intersectingGenes.tsv")
+        file =   os.path.join(config["secondary"]["RUN_DIR"], "PipelineData/Multilevel/intersectingGenes.tsv")
     run:
         import pandas as pd
         sets = []
@@ -31,22 +44,24 @@ rule runOnLeastDiffRegGenes:
         df = df[df.index.isin(sets)]
         df.to_csv(output.file, sep="\t")
 
-def extract_intersect(file, sep: str = "\t"):
-    import pandas as pd
-    df = pd.read_csv(file, sep=sep)
-    return df.index.tolist()
+config["secondary"]["housekeeping"] = str(rules.runOnLeastDiffRegGenes.output.file)
+config["secondary"]["use-housekeeping"] = True
 
-rule multilevelDESeq:
+module another_workflow:
+    snakefile: "snakefile.smk"
+    config: config["secondary"]
+
+
+
+use rule * from another_workflow as second_*
+
+
+
+
+rule all:
+    default_target: True
     input:
-        files=expand(rules.extractDESeqResult.output.result_table,zip,condition=config["conditions"],baseline=config[
-            "baselines"])
+        first=rules.first_all.input,
+        second=rules.second_all.input
 
-    params:
-        use_housekeeping =  config["use-housekeeping"],
-        use_spike_ins = config["use-spike-ins"],
-        design = config["design"],
-        housekeeping = extract_intersect(rules.runOnLeastDiffRegGenes.output.file)
-    output:
-        file = os.path.join(config["RUN_DIR"], "PipelineData/Multilevel/houskeeping_genes.tsv")
-    run:
-        print("Success")
+

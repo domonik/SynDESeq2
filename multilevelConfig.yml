@@ -1,3 +1,5 @@
+primary-file: "config.yml" # path to the config file that will be used first
+secondary-file: "config2.yml" # path to the second config file. Here housekeeping genes will be determined from first experiment
 multilevel:
   lfc_cutoff: 0.5
   padj_cutoff: 0.05

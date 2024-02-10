@@ -2,14 +2,14 @@ import os
 
 import pandas as pd
 
-
 rule copy_config_file:
-    input:
-        workflow.configfiles[0]
     output:
         file = os.path.join(config["RUN_DIR"], "config.yml")
-    shell:
-        "cp {input} {output.file}"
+    run:
+        import yaml
+        print(config)
+        with open(output.file, "w") as handle:
+            yaml.dump(config, handle)
 
 rule generateAnnotationFromCounts:
     input:
