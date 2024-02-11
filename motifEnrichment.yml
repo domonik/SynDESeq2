@@ -1,0 +1,12 @@
+
+RUN_DIR: "MotifEnrichment"
+
+Fasta: "initialData/Synechocystis.fasta"
+
+DESeqConfig:
+  file: "config.yml"
+
+
+motifEnrichment:
+  lfc_cutoff: 1.5
+  padj_cutoff: 0.05
