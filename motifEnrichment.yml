@@ -1,12 +1,14 @@
 
-RUN_DIR: "MotifEnrichment"
+RUN_DIR: "MotifEnrichment/multiLevelRun"
 
 Fasta: "initialData/Synechocystis.fasta"
 
+multilevel: True
+
 DESeqConfig:
-  file: "config.yml"
+  file: "multilevelConfig.yml"
 
 
 motifEnrichment:
-  lfc_cutoff: 1.5
+  lfc_cutoff: 0.01
   padj_cutoff: 0.05

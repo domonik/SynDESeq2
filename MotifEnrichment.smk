@@ -7,17 +7,19 @@ configfile: "motifEnrichment.yml"
 with open(config["DESeqConfig"]["file"], "r") as handle:
     config["DESeqConfig"]["run"] = yaml.safe_load(handle)
 
+
 module other_workflow:
-    snakefile: "snakefile.smk"
+    snakefile: "snakefile.smk" if not config["multilevel"] else "multilevelDESeq.smk"
     config: config["DESeqConfig"]["run"]
 
-use rule * from other_workflow as first_*
+use rule * from other_workflow
 
+deseq_config = config["DESeqConfig"]["run"] if not config["multilevel"] else config["DESeqConfig"]["run"]["secondary"]
 
 
 rule getFasta:
     input:
-        gff= config["DESeqConfig"]["run"]["gff"],
+        gff = deseq_config["gff"],
         fasta = config["Fasta"]
     conda:
         "envs/bedtools.yml"
@@ -28,8 +30,8 @@ rule getFasta:
 
 rule extractFasta:
     input:
-        file = rules.first_extractDESeqResult.output.result_table,
-        gff = config["DESeqConfig"]["run"]["gff"],
+        file = rules.extractDESeqResult.output.result_table if not config["multilevel"] else rules.second_extractDESeqResult.output.result_table,
+        gff = deseq_config["gff"],
         fasta = rules.getFasta.output.fasta
     output:
         up_fasta = os.path.join(config["RUN_DIR"],"fasta/{condition}_vs_{baseline}_up.fa"),
@@ -71,8 +73,8 @@ rule memeMotif:
         "streme --p {input.up_fasta} --o {output.dir} --n {input.bg_fasta} --evalue"
 
 
-rule all:
+rule allMotif:
     default_target: True
     input:
-        file = expand(rules.memeMotif.output, zip, condition=config["DESeqConfig"]["run"]["conditions"], baseline=config["DESeqConfig"]["run"]["baselines"])
+        file = expand(rules.memeMotif.output, zip, condition=deseq_config["conditions"], baseline=deseq_config["baselines"])
         #file = rules.getFasta.output
