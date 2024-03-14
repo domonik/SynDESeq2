@@ -3,7 +3,6 @@ library(AnnotationForge)
 library(tidyr)
 
 createAnnotation <- function(goTable, symbolTable, outDir, genus="Bulbasaurus", species="phylloxyron"){
-    print("FOO")
     mapping_data <- read.table(goTable, sep="\t", header=TRUE)
 
     if(!("EVIDENCE" %in% colnames(mapping_data))){
@@ -34,11 +33,11 @@ print(snakemake@output[["annotation_db"]])
 print(snakemake@params[["species"]])
 print(snakemake@params[["genus"]])
 package <- createAnnotation(
-    goTable=snakemake@input[["go_terms"]],
-    symbolTable=snakemake@input[["symbols"]],
-    outDir=snakemake@output[["annotation_db"]],
-    genus=snakemake@params[["genus"]],
-    species=snakemake@params[["species"]]
+    goTable=snakemake@input[["go_terms"]], # pfad zur tabelle mit den mappings locus_tag zu Go Term
+    symbolTable=snakemake@input[["symbols"]], # pfad zur tabelle mapping ProteinID zu locus_tag
+    outDir=snakemake@output[["annotation_db"]], # hier wird die databse hininstalliert
+    genus=snakemake@params[["genus"]], # völlig egal
+    species=snakemake@params[["species"]] # völlig egal
 )
 install.packages(package, repos=NULL)
 library(basename(package), character.only = TRUE)

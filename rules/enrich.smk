@@ -1,4 +1,9 @@
 import os
+
+import numpy as np
+import pandas as pd
+from sklearn.cluster import DBSCAN
+
 include: "setup.smk"
 include: "deseq.smk"
 
@@ -56,6 +61,35 @@ rule SemanticSimilarity:
         "../Rscripts/calcSemSim.R"
 
 
+def cluster_go_enrich(files, enrich_file, config):
+    enrich_df = pd.read_csv(enrich_file, sep="\t")
+    if len(enrich_df) == 0:
+        enrich_df["Cluster"] = None
+        return enrich_df
+
+    rows = []
+    clusters = []
+    for file in files:
+        df = pd.read_csv(file, sep="\t", index_col=0)
+        if np.isnan(df.iloc[0, 0]):
+            continue
+        distance_matrix = 1 - np.asarray(df.iloc[:, :])
+        clustering = DBSCAN(metric="precomputed", eps=config["cluster-eps"], min_samples=2)
+        fitted = clustering.fit_predict(distance_matrix)
+        rows += list(df.columns)
+        clusters += list(fitted)
+
+    clusters = pd.DataFrame(
+        {
+            "ID": rows,
+            "Cluster": clusters
+        }
+
+    )
+    df = pd.merge(enrich_df, clusters, on="ID")
+    return df
+
+
 rule ClusterSemSim:
     input:
         semsim = expand(
@@ -68,8 +102,6 @@ rule ClusterSemSim:
                 "RUN_DIR"],"PipelineData/Enrichment/ClusteredEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv"
             )
     run:
-        from pyfunctions.helpers import cluster_go_enrich
-
         df = cluster_go_enrich(input.semsim, input.enrichment, config=config)
         df.to_csv(output.table, sep="\t", index=False)
 

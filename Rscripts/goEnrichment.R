@@ -13,6 +13,14 @@ maxGSSize <- snakemake@config[["maxGSSize"]]
 defile <- snakemake@input[["deseq_results"]]
 detable <- read.table(defile,sep="\t",header=TRUE)
 detable <- na.omit(detable)
+has_X_column <- any(colnames(detable) == "X")
+if (has_X_column) {
+    # Remove unnamed column first
+    # Set rownames from original first column header
+    rownames(detable) <- detable[, 1]
+    # Remove first row, now containing data
+    detable <- detable[, -1 ]
+}
 
 up <- detable$log2FoldChange >= log2cutoff & detable$padj < padjcutoff
 up <- detable[up, ]
