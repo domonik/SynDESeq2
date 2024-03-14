@@ -4,7 +4,26 @@ import numpy as np
 import pandas as pd
 from plotly import graph_objs as go, express as px
 
-from example_layout import LAYOUT
+try:
+    from example_layout import LAYOUT
+except ModuleNotFoundError:
+    LAYOUT = go.Layout(
+        template="plotly_white",
+        font=dict(
+            color="black"
+        ),
+        legend=dict(
+            font=dict(
+                size=10
+            )
+        ),
+        xaxis=dict(ticklen=0,linecolor="black"),
+        yaxis=dict(ticklen=0,linecolor="black"),
+        margin=dict(
+            b=60,
+            t=60,
+        )
+    )
 
 
 include: "deseq.smk"
