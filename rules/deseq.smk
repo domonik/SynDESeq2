@@ -50,9 +50,6 @@ rule plotNormFactors:
             fig.add_vline(x=np.nanmedian(array), line=dict(color=DEFAULT_PLOTLY_COLORS[idx]))
         fig.update_layout(barmode='group',bargap=0,bargroupgap=0.0)
         fig.show()
-
-
-
         raise
 
 rule runDESeq:
@@ -73,7 +70,8 @@ rule runDESeq:
         pca_data = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/PCAData.tsv"),
         dispersion_estimates = os.path.join(config["RUN_DIR"], "PipelineData/Plots/DESeq/DispersionEstimates.png"),
         deseq_result = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/DESeqResult.RData"),
-        normalized_counts = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/normalized_counts.tsv")
+        normalized_counts = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/normalized_counts.tsv"),
+        size_factors = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/size_factors.tsv")
     script:
         "../Rscripts/deseq.R"
 

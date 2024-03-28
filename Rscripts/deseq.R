@@ -6,6 +6,7 @@ suppressPackageStartupMessages({
 countFile <- snakemake@input[["counts"]]
 annotationFile <- snakemake@input[["annotation"]]
 n_counts_output <- snakemake@output[["normalized_counts"]]
+size_factors_output <- snakemake@output[["size_factors"]]
 
 formula <- as.formula(snakemake@params[["design"]])
 
@@ -33,6 +34,8 @@ if (snakemake@params[["use_spike_ins"]]){
 dds <- DESeq(dds)
 
 normalized_counts <- counts(dds, normalized=TRUE)
+norm_factors <- sizeFactors(dds)
+write.table(norm_factors, size_factors_output, sep="\t", quote=FALSE)
 
 write.table(normalized_counts, file=n_counts_output, sep="\t", quote=FALSE)
 
