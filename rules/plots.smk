@@ -123,6 +123,9 @@ rule volcanoPlot:
         svg=os.path.join(
             config["RUN_DIR"],"PipelineData/Plots/Volcano/VolcanoPlot_c{condition}_vs_b{baseline}.svg"
         ),
+        json=os.path.join(
+            config["RUN_DIR"],"PipelineData/Plots/Volcano/VolcanoPlot_c{condition}_vs_b{baseline}.json"
+        ),
     run:
         fig = volcano_from_deseq_result(
             deseq_result=input.deseq_result,
@@ -135,6 +138,7 @@ rule volcanoPlot:
         fig.update_layout(title=dict(text=title))
         fig.write_html(output.html)
         fig.write_image(output.svg)
+        fig.write_json(output.json)
 
 
 def enrichment_plot_from_cp_table(df, mode="scatter"):
@@ -186,12 +190,14 @@ rule EnrichmentPlot:
         file = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GOEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv")
     output:
         html = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.html"),
-        svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
+        svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg"),
+        json = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/RawGOEnrichment_{updown}_c{condition}_vs_b{baseline}.json")
     run:
         df = pd.read_csv(input.file, sep="\t")
         fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
         fig.write_html(output.html)
         fig.write_image(output.svg)
+        fig.write_json(output.json)
 
 
 def reduce_cluster(df: pd.DataFrame, method: str = "strlen", ascending: bool = True):
@@ -219,26 +225,31 @@ rule ClusteredEnrichmentPlot:
         html=os.path.join(config[
             "RUN_DIR"],"PipelineData/Plots/Enrichment/ClusteredGOEnrichment_{updown}_c{condition}_vs_b{baseline}.html"),
         svg=os.path.join(
-            config["RUN_DIR"],"PipelineData/Plots/Enrichment/ClusteredGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
+            config["RUN_DIR"],"PipelineData/Plots/Enrichment/ClusteredGOEnrichment_{updown}_c{condition}_vs_b{baseline}.svg"),
+        json=os.path.join(
+            config["RUN_DIR"],"PipelineData/Plots/Enrichment/ClusteredGOEnrichment_{updown}_c{condition}_vs_b{baseline}.json")
     run:
         df = pd.read_csv(input.file, sep="\t")
         df = reduce_cluster(df, method=config["sort_method"], ascending=config["ascending"])
         fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
         fig.write_html(output.html)
         fig.write_image(output.svg)
+        fig.write_json(output.json)
 
 rule KEGGEnrichmentPlot:
     input:
         file = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv")
     output:
         html = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.html"),
-        svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.svg")
+        svg = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.svg"),
+        json = os.path.join(config["RUN_DIR"], "PipelineData/Plots/Enrichment/KEGGEnrichment_{updown}_c{condition}_vs_b{baseline}.json")
     run:
         df = pd.read_csv(input.file, sep="\t")
         df["ONTOLOGY"] = "KEGG"
         fig = enrichment_plot_from_cp_table(df, mode=config["enrichPlotType"])
         fig.write_html(output.html)
         fig.write_image(output.svg)
+        fig.write_json(output.json)
 
 
 def empty_figure():
