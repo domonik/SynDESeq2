@@ -45,6 +45,19 @@ rule GOEnrichment:
         "../Rscripts/goEnrichment.R"
 
 
+rule GSEAGO:
+    input:
+        cp = rules.clusterProfilerInstallFromGitHub.output.lib,
+        annotation_db = rules.generateOrgDB.output.annotation_db,
+        deseq_results = rules.extractDESeqResult.output.result_table
+    conda:
+        "../envs/REnvironment.yml"
+    output:
+        enriched = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GSEAGO_up_c{condition}_vs_b{baseline}.tsv"),
+    script:
+        "../Rscripts/GSEA.R"
+
+
 rule SemanticSimilarity:
     input:
         annotation_db = rules.generateOrgDB.output.annotation_db,

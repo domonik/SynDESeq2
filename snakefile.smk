@@ -13,4 +13,5 @@ rule all:
         enrich = expand(expand(rules.EnrichmentPlot.output, zip, condition=config["conditions"], baseline=config["baselines"], allow_missing=True), updown=["up", "down"]),
         enrich2 = expand(expand(rules.ClusteredEnrichmentPlot.output, zip, condition=config["conditions"], baseline=config["baselines"], allow_missing=True), updown=["up", "down"]),
         enrichkegg = expand(expand(rules.KEGGEnrichmentPlot.output, zip, condition=config["conditions"], baseline=config["baselines"], allow_missing=True), updown=["up", "down"]),
+        gsea_go = expand(expand(rules.GSEAGO.output, zip, condition=config["conditions"], baseline=config["baselines"], allow_missing=True)),
 
