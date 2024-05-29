@@ -38,6 +38,7 @@ egoBPup <- enrichGO(gene = as.character(rownames(up)),
                     minGSSize = minGSSize,
                     maxGSSize = maxGSSize,
                     readable = FALSE)
+
 summary <- data.frame(egoBPup )
 if (dim(summary)[1] == 0){
   df <- data.frame(matrix(ncol = 10, nrow = 0))
@@ -45,7 +46,19 @@ if (dim(summary)[1] == 0){
   colnames(df) <- x
   summary <- df
 }
+
+ont <- "ALL"
+ont <- match.arg(ont, c("BP", "MF", "CC", "ALL"))
+op <- clusterProfiler:::get_GO_data(basename(package), ont, "GID")
+TERMID2EXTID <- getFromNamespace("TERMID2EXTID", "DOSE")
+
+qExtID2TermID <- TERMID2EXTID(as.character(summary$ID), op)
+summary$universeGeneID <- sapply(qExtID2TermID, function(x) paste(x, collapse = "/"))
+
 write.table(summary , file = snakemake@output[["up"]], row.names=FALSE, sep="\t")
+
+
+
 
 egoBPdown <- enrichGO(gene = as.character(rownames(down)),
                     universe = as.character(rownames(detable)),
@@ -66,5 +79,9 @@ if (dim(summary)[1] == 0){
   colnames(df) <- x
   summary <- df
 }
+
+qExtID2TermID <- TERMID2EXTID(as.character(summary$ID), op)
+summary$universeGeneID <- sapply(qExtID2TermID, function(x) paste(x, collapse = "/"))
+
 write.table(summary , file = snakemake@output[["down"]], row.names=FALSE, sep="\t")
 
