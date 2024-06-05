@@ -140,6 +140,13 @@ rule prepareOrgGOTerms:
         df = df[["locus_tag", "GOTerm"]]
         df = df.explode("locus_tag").explode("GOTerm")
         df = df[~df["GOTerm"].isna()]
+        df_5utr = df.copy()
+        df_5utr["locus_tag"] = df_5utr["locus_tag"] + "_5UTR"
+        df_3utr = df.copy()
+        df_3utr["locus_tag"] = df_5utr["locus_tag"] + "_3UTR"
+
+        # Step 4: Concatenate the original and modified DataFrames
+        df = pd.concat([df, df_5utr, df_3utr],ignore_index=True)
         df.to_csv(output.go_terms, sep="\t", index=False)
         symbols.to_csv(output.symbols, sep="\t", index=False)
 

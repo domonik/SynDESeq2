@@ -26,9 +26,9 @@ up <- detable$log2FoldChange >= log2cutoff & detable$padj < padjcutoff
 up <- detable[up, ]
 down <- detable$log2FoldChange <= -log2cutoff & detable$padj < padjcutoff
 down <- detable[down, ]
-
+universe <- as.character(rownames(detable))
 egoBPup <- enrichGO(gene = as.character(rownames(up)),
-                    universe = as.character(rownames(detable)),
+                    universe = universe,
                     OrgDb = basename(package),
                     keyType = "GID",
                     ont = "ALL",
@@ -52,7 +52,13 @@ ont <- match.arg(ont, c("BP", "MF", "CC", "ALL"))
 op <- clusterProfiler:::get_GO_data(basename(package), ont, "GID")
 TERMID2EXTID <- getFromNamespace("TERMID2EXTID", "DOSE")
 
+filter_genes <- function(genes, valid_genes) {
+  genes[genes %in% valid_genes]
+}
+
 qExtID2TermID <- TERMID2EXTID(as.character(summary$ID), op)
+qExtID2TermID <- lapply(qExtID2TermID, filter_genes, valid_genes = universe)
+
 summary$universeGeneID <- sapply(qExtID2TermID, function(x) paste(x, collapse = "/"))
 
 write.table(summary , file = snakemake@output[["up"]], row.names=FALSE, sep="\t")
@@ -81,6 +87,8 @@ if (dim(summary)[1] == 0){
 }
 
 qExtID2TermID <- TERMID2EXTID(as.character(summary$ID), op)
+qExtID2TermID <- lapply(qExtID2TermID, filter_genes, valid_genes = universe)
+
 summary$universeGeneID <- sapply(qExtID2TermID, function(x) paste(x, collapse = "/"))
 
 write.table(summary , file = snakemake@output[["down"]], row.names=FALSE, sep="\t")
