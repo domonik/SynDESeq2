@@ -133,17 +133,16 @@ rule prepareOrgGOTerms:
         symbols = os.path.join(config["GOTermDir"], "symbols_" + ORGANISMID + ".tsv"),
     run:
         df = pd.read_csv(input.uniprotgo, sep="\t")
-        df = df.rename({"Gene Names (ordered locus)": "locus_tag"}, axis=1)
-        df = df[~df["locus_tag"].isna()]
-        symbols = df[["Entry", "locus_tag"]]
+        df = df[~df[config["id_column"]].isna()]
+        symbols = df[["Entry", config["id_column"]]]
         df["GOTerm"] = df["Gene Ontology IDs"].str.split('; | |/')
-        df = df[["locus_tag", "GOTerm"]]
-        df = df.explode("locus_tag").explode("GOTerm")
+        df = df[[config["id_column"], "GOTerm"]]
+        df = df.explode(config["id_column"]).explode("GOTerm")
         df = df[~df["GOTerm"].isna()]
         df_5utr = df.copy()
-        df_5utr["locus_tag"] = df_5utr["locus_tag"] + "_5UTR"
+        df_5utr[config["id_column"]] = df_5utr[config["id_column"]] + "_5UTR"
         df_3utr = df.copy()
-        df_3utr["locus_tag"] = df_5utr["locus_tag"] + "_3UTR"
+        df_3utr[config["id_column"]] = df_5utr[config["id_column"]] + "_3UTR"
 
         # Step 4: Concatenate the original and modified DataFrames
         df = pd.concat([df, df_5utr, df_3utr],ignore_index=True)

@@ -16,8 +16,9 @@
 
 RUN_DIR: "RUNS/LightPuromycinMinus" # The Directory to store results in
 CountFile: "initialData/LightOnlyDataset.csv" # The counts file to use
-tag2Name: False # Optional tag to gene name mapping file. Set to False if not provided
 initial_sep: ","
+id_column: "Gene Names (ordered locus)" # UniProt Column name of your index column
+name_column: "Gene Names" # Another UniProt column that is displayed in final files
 Rlib: "Rlib" # Some R packages will be installed here due to version conflicts
 
 

@@ -1,0 +1,9 @@
+channels:
+ - conda-forge
+ - bioconda
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - git+https://github.com/domonik/DEplots.git@5472ad7c922bf919651892e6d4c2e2da67639014
+      - kaleido

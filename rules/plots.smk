@@ -31,91 +31,13 @@ include: "enrich.smk"
 import os
 
 
-def volcano_from_deseq_result(
-        deseq_result,
-        config: Dict,
-        initial_sep: str = ",",
-        tag2name: str = None,
-        highlight: Dict = None
-):
-    hovertemplate = '<i>Y</i>: %{y:.2f}' + \
-                    '<br><b>X</b>: %{x}<br>' + \
-                    '<b>%{text}</b>'
-    df = pd.read_csv(deseq_result, sep="\t", index_col=0)
-    if tag2name:
-        tag2name = pd.read_csv(tag2name, sep=initial_sep, index_col=0)
-        df = pd.concat((df, tag2name), axis=1)
-        df["plot_name"] = df["gene_name"].str.cat(df.index, sep="-")
-        df = df.dropna()
-    else:
-        df["plot_name"] = df.index
-        df["gene_name"] = df.index
-    df["-log10padj"] = -1 * np.log10(df["padj"])
-    max_log10padj = np.ceil(df["-log10padj"].max())
-    min_fc = np.floor(df["log2FoldChange"].min())
-    max_fc = np.ceil(df["log2FoldChange"].max())
 
-    fig = go.Figure(layout=LAYOUT)
-
-    if highlight is not None:
-        for key, value in highlight.items():
-            color, names = value
-            if isinstance(names, str):
-                mask = df.gene_name.str.contains(names)
-                to_highlight = df[mask]
-                n = ~mask
-            else:
-                to_highlight = df[df.index.isin(names)]
-                if len(to_highlight) == 0:
-                    to_highlight = df[df.gene_name.isin(names)]
-                    n = ~df["gene_name"].isin(names)
-                else:
-                    n = ~df.index.isin(names)
-            df = df[n]
-            fig.add_trace(go.Scatter(
-                x=to_highlight["log2FoldChange"],
-                y=to_highlight["-log10padj"],
-                mode="markers",
-                marker=dict(color=color),
-                hovertemplate=hovertemplate,
-                text=to_highlight["plot_name"],
-                name=key
-            ))
-    df["significant"] = "not"
-    df.loc[(df["log2FoldChange"] >= config["log2FCCutOff"]) & (df["padj"] < config["pAdjCutOff"]), "significant"] = "up"
-    df.loc[(df["log2FoldChange"] <= -config["log2FCCutOff"]) & (df["padj"] < config["pAdjCutOff"]), "significant"] = "down"
-
-    for sig, color in {"up": config["upColor"], "down": config["downColor"], "not": config["normalColor"]}.items():
-
-        fig.add_trace(go.Scatter(
-            x=df[df["significant"] == sig]["log2FoldChange"],
-            y=df[df["significant"] == sig]["-log10padj"],
-            mode="markers",
-            marker=dict(color=color),
-            hovertemplate=hovertemplate,
-            text=df[df["significant"] == sig]["plot_name"],
-            name="Normal Genes",
-            showlegend=False
-        ))
-    fig.data = fig.data[::-1]
-    fig = add_boxes(fig, config)
-    fig.update_xaxes(
-        range=[min_fc, max_fc],
-        dtick=1
-    )
-    fig.update_yaxes(
-        range=[-0.5, max_log10padj],
-    )
-    fig.update_layout(
-        xaxis_title="Log2FoldChange",
-        yaxis_title="-Log10(pval)"
-    )
-    return fig
 
 
 rule volcanoPlot:
     input:
-        deseq_result = rules.extractDESeqResult.output.result_table
+        deseq_result = rules.extractDESeqResult.output.result_table,
+        uniprot_table = rules.downloadOrganismGOTerms.output.go_terms
     output:
         html=os.path.join(
             config["RUN_DIR"],"PipelineData/Plots/Volcano/VolcanoPlot_c{condition}_vs_b{baseline}.html"
@@ -126,19 +48,10 @@ rule volcanoPlot:
         json=os.path.join(
             config["RUN_DIR"],"PipelineData/Plots/Volcano/VolcanoPlot_c{condition}_vs_b{baseline}.json"
         ),
-    run:
-        fig = volcano_from_deseq_result(
-            deseq_result=input.deseq_result,
-            initial_sep=config["initial_sep"],
-            config=config,
-            tag2name=config["tag2Name"],
-            highlight=config["highlight"]
-        )
-        title = config["design"] + f" - {wildcards.baseline} vs {wildcards.condition}"
-        fig.update_layout(title=dict(text=title))
-        fig.write_html(output.html)
-        fig.write_image(output.svg)
-        fig.write_json(output.json)
+    conda: "../envs/DEplots.yml"
+    script:
+        "../PyScripts/volcanoPlot.py"
+
 
 
 def enrichment_plot_from_cp_table(df, mode="scatter"):
