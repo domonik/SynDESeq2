@@ -41,5 +41,5 @@ package <- createAnnotation(
 )
 dir.create(snakemake@config[["Rlib"]])
 install.packages(package, repos=NULL, lib=snakemake@config[["Rlib"]])
-library(basename(package), character.only = TRUE)
+library(basename(package), character.only = TRUE, lib.loc=snakemake@config[["Rlib"]])
 cat(NULL, file=snakemake@output[["finished_file"]])
