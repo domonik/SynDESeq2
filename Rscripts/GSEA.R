@@ -2,7 +2,7 @@ suppressPackageStartupMessages({
   library(clusterProfiler)
 })
 package <- list.files(snakemake@input[["annotation_db"]])[1]
-library(basename(package), character.only = TRUE)
+library(basename(package), character.only = TRUE, lib.loc=snakemake@config[["Rlib"]])
 
 table <- snakemake@input[["deseq_results"]]
 table <- read.table(table, sep="\t", header=TRUE)

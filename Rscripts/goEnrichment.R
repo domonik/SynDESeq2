@@ -2,7 +2,8 @@ suppressPackageStartupMessages({
   library(clusterProfiler)
 })
 package <- list.files(snakemake@input[["annotation_db"]])[1]
-library(basename(package), character.only = TRUE, )
+print(snakemake@input[["annotation_db"]])
+library(basename(package), character.only = TRUE, lib.loc=snakemake@config[["Rlib"]])
 
 log2cutoff <- snakemake@config[["log2FCCutOff"]]
 padjcutoff <- snakemake@config[["pAdjCutOff"]]

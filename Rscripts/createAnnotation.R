@@ -39,6 +39,7 @@ package <- createAnnotation(
     genus=snakemake@params[["genus"]], # völlig egal
     species=snakemake@params[["species"]] # völlig egal
 )
-install.packages(package, repos=NULL)
+dir.create(snakemake@config[["Rlib"]])
+install.packages(package, repos=NULL, lib=snakemake@config[["Rlib"]])
 library(basename(package), character.only = TRUE)
 cat(NULL, file=snakemake@output[["finished_file"]])
