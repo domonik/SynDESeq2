@@ -21,7 +21,7 @@ ego <- gseGO(geneList = geneList,
 )
 summary <- data.frame(ego)
 if (dim(summary)[1] == 0){
-  df <- data.frame(matrix(ncol = 10, nrow = 0))
+  df <- data.frame(matrix(ncol = 12, nrow = 0))
   x <- c("ONTOLOGY", "ID", "Description", "setSize", "enrichmentScore", "NES", "pvalue", "p.adjust", "qvalue", "rank", "leading_edge", "core_enrichment")
   colnames(df) <- x
   summary <- df
