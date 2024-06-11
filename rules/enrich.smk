@@ -33,7 +33,7 @@ rule buildLocalKEGGdb:
 
 rule GOEnrichment:
     input:
-        cp = rules.clusterProfilerInstallFromGitHub.output.lib,
+        #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
         annotation_db = rules.generateOrgDB.output.annotation_db,
         deseq_results = rules.extractDESeqResult.output.result_table
     conda:
@@ -47,7 +47,7 @@ rule GOEnrichment:
 
 rule GSEAGO:
     input:
-        cp = rules.clusterProfilerInstallFromGitHub.output.lib,
+        #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
         annotation_db = rules.generateOrgDB.output.annotation_db,
         deseq_results = rules.extractDESeqResult.output.result_table
     conda:
@@ -122,7 +122,7 @@ rule ClusterSemSim:
 
 rule enrichKEGG:
     input:
-        cp = rules.clusterProfilerInstallFromGitHub.output.lib,
+        #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
         defile = rules.extractDESeqResult.output.result_table,
     output:
         up = os.path.join(

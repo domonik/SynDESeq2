@@ -1,5 +1,5 @@
 suppressPackageStartupMessages({
-  library(clusterProfiler, lib.loc = snakemake@config[["Rlib"]])
+  library(clusterProfiler)
   library(dplyr)
 })
 defile <- snakemake@input[["defile"]]

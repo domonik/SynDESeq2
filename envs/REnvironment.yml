@@ -8,3 +8,4 @@ dependencies:
  - bioconductor-go.db
  - r-tidyr
  - bioconductor-gosemsim
+ - bioconductor-clusterprofiler
