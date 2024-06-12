@@ -49,11 +49,12 @@ rule GSEAGO:
     input:
         #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
         annotation_db = rules.generateOrgDB.output.annotation_db,
-        deseq_results = rules.extractDESeqResult.output.result_table
+        deseq_results = rules.extractDESeqResult.output.result_table,
     conda:
         "../envs/REnvironment.yml"
     output:
-        enriched = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GSEAGO_up_c{condition}_vs_b{baseline}.tsv"),
+        enriched = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GSEAGO_c{condition}_vs_b{baseline}.tsv"),
+        gsdata = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GSEAGO_plot_data_c{condition}_vs_b{baseline}.tsv"),
     script:
         "../Rscripts/GSEA.R"
 
