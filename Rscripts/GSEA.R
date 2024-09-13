@@ -59,5 +59,13 @@ write.table(summary , file = snakemake@output[["enriched"]], row.names=FALSE, se
 
 m <- nrow(summary)
 geneSetID <- 1:m
-gsdata <- do.call(rbind, lapply(geneSetID, gsInfo, object = ego))
+
+if (dim(summary)[1] == 0){
+  x <- c("x", "runningScore", "position", "ymin", "ymax", "geneList", "gene", "Description")
+  df <- data.frame(matrix(ncol = 8, nrow = 0))
+  colnames(df) <- x
+  gsdata <- df
+} else {
+  gsdata <- do.call(rbind, lapply(geneSetID, gsInfo, object = ego))
+}
 write.table(gsdata , file = snakemake@output[["gsdata"]], row.names=FALSE, sep="\t")

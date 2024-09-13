@@ -175,3 +175,13 @@ fabric.properties
 /RAPDOR/
 /Comparisons/
 /GOTerms2/
+/OnlyUTREnrichment.smk
+/ProteinEnrichmentLuisa.smk
+/FOXG1Pipeline.smk
+/LuisaEnrichment.yml
+/FOXG1Pipeline.yml
+/configJoinedUTR.yml
+/config5.yml
+/config4.yml
+/config3.yml
+/MotifEnrichment/

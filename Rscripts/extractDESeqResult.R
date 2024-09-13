@@ -10,5 +10,9 @@ variable <- snakemake@params[["factor"]]
 
 load(file=file)
 contrast <- c(variable, condition, baseline)
+
 result_table <- results(dds, contrast=contrast, alpha = 0.05)
+
+result_table <- lfcShrink(dds, contrast=contrast, type="normal")
+
 write.table(result_table, snakemake@output[["result_table"]], sep="\t")
