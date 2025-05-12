@@ -7,15 +7,16 @@ if __name__ == '__main__':
     add_data = add_data.set_index(snakemake.config["id_column"])
     df = df.join(add_data, how="left")
     highlight = {}
-    for key, value in snakemake.config["highlight"].items():
-        color, names = value
-        print(names)
-        mask = df.index.str.contains(names)
-        to_highlight = df[mask]
-        if len(to_highlight) == 0:
-            to_highlight = df[df[snakemake.config["name_column"]].str.contains(names) == True]
-            assert len(to_highlight) > 0, f"Nothing to highlight for {key}-{names}"
-        highlight[key] = (color, to_highlight.index)
+    if snakemake.config["highlight"]:
+        for key, value in snakemake.config["highlight"].items():
+            color, names = value
+            print(names)
+            mask = df.index.str.contains(names)
+            to_highlight = df[mask]
+            if len(to_highlight) == 0:
+                to_highlight = df[df[snakemake.config["name_column"]].str.contains(names) == True]
+                assert len(to_highlight) > 0, f"Nothing to highlight for {key}-{names}"
+            highlight[key] = (color, to_highlight.index)
 
     fig = volcano_from_deseq_result(
         deseq_result=df,

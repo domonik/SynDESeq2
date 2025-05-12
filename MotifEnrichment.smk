@@ -40,7 +40,7 @@ rule extractFasta:
         import pandas as pd
         df = pd.read_csv(input.file, sep="\t")
         up = df[df["log2FoldChange"] >= config["motifEnrichment"]["lfc_cutoff"]]
-        up = up[up["padj"] >= config["motifEnrichment"]["padj_cutoff"]]
+        up = up[up["padj"] <= config["motifEnrichment"]["padj_cutoff"]]
         gff = pd.read_csv(input.gff, sep="\t",  names=["chr", "feature", "feat", "start", "end", "dot", "strand", "score", "add"], skiprows=1)
         gff["locus_tag"] = gff["add"].str.split("locus_tag=").str[-1]
         gff["up"] = gff["locus_tag"].isin(up.index)
@@ -76,5 +76,7 @@ rule memeMotif:
 rule allMotif:
     default_target: True
     input:
-        file = expand(rules.memeMotif.output, zip, condition=deseq_config["conditions"], baseline=deseq_config["baselines"])
+        file = expand(rules.memeMotif.output, zip, condition=deseq_config["conditions"], baseline=deseq_config["baselines"]),
+        all = rules.all.input,
+
         #file = rules.getFasta.output

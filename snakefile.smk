@@ -1,5 +1,5 @@
 
-configfile:  "config.yml"
+#configfile:  "config.yml"
 
 include: "rules/enrich.smk"
 include: "rules/plots.smk"

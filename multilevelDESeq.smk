@@ -56,12 +56,30 @@ module another_workflow:
 use rule * from another_workflow as second_*
 
 
+rule plotOverlap:
+    input:
+        deseq1 = rules.first_extractDESeqResult.output.result_table,
+        deseq2 = rules.second_extractDESeqResult.output.result_table
+    output:
+        tsv = os.path.join(config["secondary"]["RUN_DIR"], "PipelineData/Multilevel/c{condition}_vs_b{baseline}_overlap.tsv")
+    run:
+        import pandas as pd
+        des1 = pd.read_csv(input.deseq1, sep="\t")
+        des2 = pd.read_csv(input.deseq2, sep="\t")
+        des1 = des1[(des1["log2FoldChange"] >= config["primary"]["log2FCCutOff"]) & (des1["padj"] >= config["primary"]["pAdjCutOff"])]
 
+        des2 = des2[(des2["log2FoldChange"] >= config["primary"]["log2FCCutOff"]) & (des2["padj"] >= config["primary"]["pAdjCutOff"])]
+        print(des1)
+        print("_________________")
+        print(des2)
+        des = des1.join(des2, lsuffix="_first", rsuffix="_second", how="inner")
+        print(des)
 
 rule all:
     default_target: True
     input:
         first=rules.first_all.input,
-        second=rules.second_all.input
+        second=rules.second_all.input,
+        overlap = expand(rules.plotOverlap.output, zip, condition=config["primary"]["conditions"], baseline=config["primary"]["baselines"])
 
 

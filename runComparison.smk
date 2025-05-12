@@ -46,7 +46,8 @@ rule compareRuns:
         html = os.path.join(config["RUN_DIR"], "Comparison/DESeqResult_c{condition}_vs_b{baseline}.html"),
         svg = os.path.join(config["RUN_DIR"], "Comparison/DESeqResult_c{condition}_vs_b{baseline}.svg")
     run:
-        from pyfunctions.plotting import compare_results
+        from rules.plots import compare_results
+
         to_compare = []
         names = [config[p]["name"] for p in ["primary", "secondary", "tertiary"]]
         for name, file in zip(names, input):

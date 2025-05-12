@@ -68,6 +68,7 @@ rule runDESeq:
     output:
         heatmap = os.path.join(config["RUN_DIR"], "PipelineData/Plots/DESeq/SampleHeatmap.png"),
         pca_data = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/PCAData.tsv"),
+        corr_data = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/CorrData.tsv"),
         dispersion_estimates = os.path.join(config["RUN_DIR"], "PipelineData/Plots/DESeq/DispersionEstimates.png"),
         deseq_result = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/DESeqResult.RData"),
         normalized_counts = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/normalized_counts.tsv"),

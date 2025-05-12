@@ -68,7 +68,7 @@ write.table(summary , file = snakemake@output[["up"]], row.names=FALSE, sep="\t"
 
 
 egoBPdown <- enrichGO(gene = as.character(rownames(down)),
-                    universe = as.character(rownames(detable)),
+                    universe = universe,
                     OrgDb = basename(package),
                     keyType = "GID",
                     ont = "ALL",
@@ -77,8 +77,7 @@ egoBPdown <- enrichGO(gene = as.character(rownames(down)),
                     qvalueCutoff = 0.05,
                     minGSSize = minGSSize,
                     maxGSSize = maxGSSize,
-                    readable = TRUE)
-
+                    readable = FALSE)
 summary <- data.frame(egoBPdown )
 if (dim(summary)[1] == 0){
   df <- data.frame(matrix(ncol = 10, nrow = 0))
