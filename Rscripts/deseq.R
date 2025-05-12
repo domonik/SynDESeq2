@@ -40,7 +40,8 @@ write.table(norm_factors, size_factors_output, sep="\t", quote=FALSE)
 write.table(normalized_counts, file=n_counts_output, sep="\t", quote=FALSE)
 
 rld <- rlog(dds, blind=TRUE)
-pca_data <- plotPCA(rld, intgroup="Fraction", returnData=TRUE, ntop=500)
+terms <- all.vars(design_formula)[-1]
+pca_data <- plotPCA(rld, intgroup=terms, returnData=TRUE, ntop=500)
 write.table(pca_data, snakemake@output[["pca_data"]], sep="\t")
 rld_mat <- assay(rld)
 rld_cor <- cor(rld_mat)
