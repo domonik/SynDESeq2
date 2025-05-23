@@ -8,7 +8,13 @@ annotationFile <- snakemake@input[["annotation"]]
 n_counts_output <- snakemake@output[["normalized_counts"]]
 size_factors_output <- snakemake@output[["size_factors"]]
 
-formula <- as.formula(snakemake@params[["design"]])
+design_string <- snakemake@params[["design"]]
+
+if (is.null(design_string) || design_string == "~" || design_string == "") {
+    stop("Invalid or missing design formula passed from Snakemake. Expected something like '~ condition'")
+}
+
+formula <- as.formula(design_string)
 
 print(formula)
 
@@ -40,7 +46,12 @@ write.table(norm_factors, size_factors_output, sep="\t", quote=FALSE)
 write.table(normalized_counts, file=n_counts_output, sep="\t", quote=FALSE)
 
 rld <- rlog(dds, blind=TRUE)
-terms <- all.vars(formula)[-1]
+terms <- all.vars(formula)
+
+# Take just the last term — typically the grouping variable
+intgroup <- tail(terms, 1)
+ntop <- min(500, nrow(rld))
+
 pca_data <- plotPCA(rld, intgroup=terms, returnData=TRUE, ntop=500)
 write.table(pca_data, snakemake@output[["pca_data"]], sep="\t")
 rld_mat <- assay(rld)
