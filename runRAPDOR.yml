@@ -1,0 +1,17 @@
+
+RUN_DIR: "RAPDOR"
+
+treatment:
+  col: "Puromycin"
+  control: "minusP"
+fraction:
+  col: "Fraction"
+replicate:
+  col: "Replicate"
+
+Annotation:
+  file: "initialData/locusTagtoGeneName.csv"
+  sep: ","
+
+DESeqConfig:
+  file: "rapdorconfig.yml"

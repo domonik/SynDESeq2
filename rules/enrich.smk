@@ -1,5 +1,7 @@
 import os
-from pyfunctions.helpers import cluster_go_enrich
+
+
+
 include: "setup.smk"
 include: "deseq.smk"
 
@@ -10,6 +12,8 @@ rule clusterProfilerInstallFromGitHub:
     # This is necessary since they don´t update their conda package
     output:
         lib = directory(os.path.join(config["Rlib"], "clusterProfiler"))
+    conda:
+        "../envs/REnvironment.yml"
     script:
         "../Rscripts/installClusterProfiler.R"
 
@@ -20,19 +24,37 @@ rule buildLocalKEGGdb:
         localKEGGdb = os.path.join(config["Rlib"], config["keggOrgID"])
     output:
         lib = os.path.join( config["Rlib"] , config["keggOrgID"], "KEGG.db_1.0.tar.gz")
+    conda:
+        "../envs/REnvironment.yml"
     script:
         "../Rscripts/downloadKEGGdb.R"
 
 rule GOEnrichment:
     input:
-        cp = rules.clusterProfilerInstallFromGitHub.output.lib,
+        #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
         annotation_db = rules.generateOrgDB.output.annotation_db,
         deseq_results = rules.extractDESeqResult.output.result_table
+    conda:
+        "../envs/REnvironment.yml"
     output:
         up = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GOEnrichment_up_c{condition}_vs_b{baseline}.tsv"),
         down = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GOEnrichment_down_c{condition}_vs_b{baseline}.tsv")
     script:
         "../Rscripts/goEnrichment.R"
+
+
+rule GSEAGO:
+    input:
+        #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
+        annotation_db = rules.generateOrgDB.output.annotation_db,
+        deseq_results = rules.extractDESeqResult.output.result_table,
+    conda:
+        "../envs/REnvironment.yml"
+    output:
+        enriched = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GSEAGO_c{condition}_vs_b{baseline}.tsv"),
+        gsdata = os.path.join(config["RUN_DIR"], "PipelineData/Enrichment/GSEAGO_plot_data_c{condition}_vs_b{baseline}.tsv"),
+    script:
+        "../Rscripts/GSEA.R"
 
 
 rule SemanticSimilarity:
@@ -45,8 +67,12 @@ rule SemanticSimilarity:
         table = os.path.join(
             config["RUN_DIR"],"PipelineData/Enrichment/SemanticSimilarity_ont{subcat}_{updown}_c{condition}_vs_b{baseline}.tsv"
         )
+    conda:
+        "../envs/REnvironment.yml"
     script:
         "../Rscripts/calcSemSim.R"
+
+
 
 
 rule ClusterSemSim:
@@ -58,17 +84,17 @@ rule ClusterSemSim:
     output:
         table = os.path.join(
             config[
-                "RUN_DIR"],"PipelineData/Enrichment/ClusteredEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv"
+                "RUN_DIR"],"PipelineData/Enrichment/ClusteredGOEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv"
             )
-    run:
-        df = cluster_go_enrich(input.semsim, input.enrichment, config=config)
-        df.to_csv(output.table, sep="\t", index=False)
+    conda: "../envs/sklearn.yml"
+    script:  "../PyScripts/clusterGOEnrich.py"
+
 
 
 
 rule enrichKEGG:
     input:
-        cp = rules.clusterProfilerInstallFromGitHub.output.lib,
+        #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
         defile = rules.extractDESeqResult.output.result_table,
     output:
         up = os.path.join(
@@ -79,5 +105,7 @@ rule enrichKEGG:
             config[
                 "RUN_DIR"],"PipelineData/Enrichment/KEGGEnrichment_down_c{condition}_vs_b{baseline}.tsv"
             )
+    conda:
+        "../envs/REnvironment.yml"
     script:
         "../Rscripts/keggEnrichment.R"

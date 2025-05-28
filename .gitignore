@@ -171,3 +171,17 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+/config2.yml
+/RAPDOR/
+/Comparisons/
+/GOTerms2/
+/OnlyUTREnrichment.smk
+/ProteinEnrichmentLuisa.smk
+/FOXG1Pipeline.smk
+/LuisaEnrichment.yml
+/FOXG1Pipeline.yml
+/configJoinedUTR.yml
+/config5.yml
+/config4.yml
+/config3.yml
+/MotifEnrichment/
