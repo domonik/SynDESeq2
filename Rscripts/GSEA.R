@@ -1,5 +1,8 @@
 suppressPackageStartupMessages({
   library(clusterProfiler)
+  library(dplyr)
+  library(tidyr)
+  library(purrr)
 })
 gseaScores <- getFromNamespace("gseaScores", "DOSE")
 
@@ -44,7 +47,7 @@ ego <- gseGO(geneList = geneList,
               keyType = "GID",
               minGSSize = 30,
               maxGSSize = 500,
-              pvalueCutoff = 0.4,
+              pvalueCutoff = 0.05,
               verbose = FALSE,
 )
 summary <- data.frame(ego)

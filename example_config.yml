@@ -14,30 +14,31 @@
 
 
 
-RUN_DIR: "RUNS/LightPuromycinMinus" # The Directory to store results in
-CountFile: "initialData/LightOnlyDataset.csv" # The counts file to use
+RUN_DIR: "RUNS/testDataRun" # The Directory to store results in
+CountFile: "testdata/airway_scaledcounts.csv" # The counts file to use
 initial_sep: ","
-id_column: "Gene Names (ordered locus)" # UniProt Column name of your index column
-name_column: "Gene Names" # Another UniProt column that is displayed in final files
+uniprot_mapping: "testdata/ensgene_to_uniprot.tsv"
+
+
 Rlib: "Rlib" # Some R packages will be installed here due to version conflicts
 
 
 # The Counts file will be split at _ seperator and all terms will become conditions
 # eg. Header row has to have entries like minusP_TotalCell_R1 using the column mapping:
 # ["Puromycin", "Fraction", "Replicate"] minusP will become a level of the factor Puromycin
-column_mapping: ["Puromycin", "Fraction", "Replicate"]
+column_mapping: ["Treatment", "Celltype"]
 
 # The design formula that is used by DESeq usuall the last factor will be the one used for cmparisons and
 # DESeq automatically adjusts for other factors
-design: "~ Replicate + Fraction"
+design: "~ Celltype + Treatment"
 
 # Will be zipped together in order to run for multiple conditions. Must be levels of last Factor
-conditions: ["M", "C", "M"]
-baselines: ["TC", "TC", "C"]
+conditions: ["treated"]
+baselines: ["control"]
 
 # If your initial table contains  columns that you don´t want to use instead of using DESeqs correction via the design
 # formula. You can specify them via the name form the column mapping and the level to drop.
-drop_condition: {"Puromycin": ["plusP"]}
+drop_condition: {}
 
 # You can use a list of sample names that you don´t want to use. e.g. if this sample doesn´t cluster well with others
 # e.g. you can remove the sample mentioned above via putting: ["minusP_TotalCell_R1"] here. If you don´t want to remove
@@ -47,7 +48,7 @@ blacklisted_samples: False
 
 # You can use spike ins which must be in your CountFile. Spike ins will be detected via a Name pattern. e.g. "ERCC"
 # Spike ins will be removed after they were used for normalization
-use-spike-ins: True
+use-spike-ins: False
 spike-in-pattern: "ERCC"
 
 # You can put a list of house-keeping genes here where you are sure that they don't change between your conditions. If
@@ -60,9 +61,9 @@ housekeeping: ""
 # GOTerm databases are automatically built via downloading terms from UniProt. Therefore, you need to specify a taxID.
 # Since you can use the database for multiple Runs  specify a directory where to store the Database and files.
 GOTermDir: "GOTerms"
-tax_id: 11117
-genus: "Synechocystis"
-species: "sp"
+tax_id: 9606
+genus: "Homo"
+species: "sapiens"
 
 # GOEnrichment Settings
 # These are the Cutoffs used for GO Enrichment.
@@ -76,7 +77,7 @@ maxGSSize: 500
 # KEGGEnrichment Settings - mainly uses GO settings
 
 # organism ID from KEGG DB
-keggOrgID: "syn"
+keggOrgID: "hsa"
 
 
 # Setting for GO Term enrichment reduction. Will remove redundant GO Terms via Calculating their Semantic Similarity and
@@ -89,20 +90,3 @@ cluster-eps: 0.25
 # value
 sort_method: "p.adjust"
 ascending: True
-
-
-# Plotting
-
-# You can highlight genes in the Volcano Plots via the highlight dict. You can either use gene names from the tag2gene
-# file or the locus tag
-#
-# The key of the dict (GOI) will be displayed in the legend. The first entry of the list is then the color followed by
-# another list that contains names or tags. upcolor downcolor and normalcolor are the colors used in the volcano plot
-# you can use every HTML color you like.
-
-highlight: {"GOI": ["purple", ["psbA2", "rnpB", "pilA1", "psaA", "cmpC", "pixG", "pilB", "pixG;  pisG;  taxP1;  rer1", "kpsM"]]}
-upColor: "rgb(255,0,0)"
-downColor: "rgb(255,165,0)"
-normalColor: "rgb(199,199,199)"
-
-enrichPlotType: "bar" # one of bar or scatter

@@ -127,25 +127,27 @@ rule downloadOrganismGOTerms:
 
 rule prepareOrgGOTerms:
     input:
-        uniprotgo = rules.downloadOrganismGOTerms.output.go_terms
+        uniprotgo = rules.downloadOrganismGOTerms.output.go_terms,
+        uni_mapping = config["uniprot_mapping"]
     output:
         go_terms = os.path.join(config["GOTermDir"], "all_terms_" + ORGANISMID + ".tsv"),
         symbols = os.path.join(config["GOTermDir"], "symbols_" + ORGANISMID + ".tsv"),
     run:
         df = pd.read_csv(input.uniprotgo, sep="\t")
-        df = df[~df[config["id_column"]].isna()]
-        symbols = df[["Entry", config["id_column"]]]
-        df["GOTerm"] = df["Gene Ontology IDs"].str.split('; | |/')
-        df = df[[config["id_column"], "GOTerm"]]
-        df = df.explode(config["id_column"]).explode("GOTerm")
-        df = df[~df["GOTerm"].isna()]
-        df_5utr = df.copy()
-        df_5utr[config["id_column"]] = df_5utr[config["id_column"]] + "_5UTR"
-        df_3utr = df.copy()
-        df_3utr[config["id_column"]] = df_5utr[config["id_column"]] + "_3UTR"
+        mapping = pd.read_csv(input.uni_mapping, sep="\t")
 
+        df = mapping.merge(df, left_on=mapping.columns[1], right_on="Entry")
+        name_col = df.columns[0]
+
+        df["GOTerm"] = df["Gene Ontology IDs"].str.split('; | |/')
+        df = df[~df["GOTerm"].isna()]
+        df["GO_len"] = df["GOTerm"].apply(len)
+        df = df.sort_values("GO_len",ascending=False).drop_duplicates(df.columns[0], keep="first")
+        symbols = df[["Entry", name_col]]
+        df = df[[name_col, "GOTerm"]]
+        df = df.explode(name_col).explode("GOTerm")
+        df = df[~df["GOTerm"].isna()]
         # Step 4: Concatenate the original and modified DataFrames
-        df = pd.concat([df, df_5utr, df_3utr],ignore_index=True)
         df.to_csv(output.go_terms, sep="\t", index=False)
         symbols.to_csv(output.symbols, sep="\t", index=False)
 
