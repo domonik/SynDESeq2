@@ -2,7 +2,7 @@
 #configfile:  "config.yml"
 
 include: "rules/enrich.smk"
-include: "rules/setup.smk"
+
 
 
 rule all:

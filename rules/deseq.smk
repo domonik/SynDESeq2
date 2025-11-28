@@ -2,7 +2,6 @@ import os
 
 include: "setup.smk"
 
-
 rule extractDESeqResult:
     input:
         result = os.path.join(config["RUN_DIR"], "PipelineData/IntermediateData/DESeqResult.RData"),

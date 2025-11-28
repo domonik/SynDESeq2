@@ -1,12 +1,6 @@
 import os
 
-
-
-include: "setup.smk"
 include: "deseq.smk"
-
-
-
 
 rule clusterProfilerInstallFromGitHub:
     # This is necessary since they don´t update their conda package
