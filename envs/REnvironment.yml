@@ -1,0 +1,11 @@
+channels:
+ - conda-forge
+ - bioconda
+dependencies:
+ - r-base
+ - r-devtools
+ - bioconductor-annotationforge
+ - bioconductor-go.db
+ - r-tidyr
+ - bioconductor-gosemsim
+ - bioconductor-clusterprofiler

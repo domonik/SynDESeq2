@@ -1,0 +1,14 @@
+
+RUN_DIR: "MotifEnrichment/singleLevelRunOnlyUTR"
+
+Fasta: "initialData/Synechocystis.fasta"
+
+multilevel: False
+
+DESeqConfig:
+  file: "config.yml"
+
+
+motifEnrichment:
+  lfc_cutoff: 2
+  padj_cutoff: 0.05
