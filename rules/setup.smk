@@ -118,56 +118,56 @@ def download_organism_go_terms(tax_id, outfile):
         raise ValueError("The outfile is empty.")
     return 0
 
+if config["buildOrgDB"]:
+    rule downloadOrganismGOTerms:
+        output:
+            go_terms = os.path.join(config["GOTermDir"],  ORGANISMID + ".tsv")
+        run:
+            download_organism_go_terms(config["tax_id"], output.go_terms)
 
-rule downloadOrganismGOTerms:
-    output:
-        go_terms = os.path.join(config["GOTermDir"],  ORGANISMID + ".tsv")
-    run:
-        download_organism_go_terms(config["tax_id"], output.go_terms)
+    rule prepareOrgGOTerms:
+        input:
+            uniprotgo = rules.downloadOrganismGOTerms.output.go_terms,
+            uni_mapping = config["uniprot_mapping"]
+        output:
+            go_terms = os.path.join(config["GOTermDir"], "all_terms_" + ORGANISMID + ".tsv"),
+            symbols = os.path.join(config["GOTermDir"], "symbols_" + ORGANISMID + ".tsv"),
+        run:
+            df = pd.read_csv(input.uniprotgo, sep="\t")
+            mapping = pd.read_csv(input.uni_mapping, sep="\t")
 
-rule prepareOrgGOTerms:
-    input:
-        uniprotgo = rules.downloadOrganismGOTerms.output.go_terms,
-        uni_mapping = config["uniprot_mapping"]
-    output:
-        go_terms = os.path.join(config["GOTermDir"], "all_terms_" + ORGANISMID + ".tsv"),
-        symbols = os.path.join(config["GOTermDir"], "symbols_" + ORGANISMID + ".tsv"),
-    run:
-        df = pd.read_csv(input.uniprotgo, sep="\t")
-        mapping = pd.read_csv(input.uni_mapping, sep="\t")
+            df = mapping.merge(df, left_on=mapping.columns[1], right_on="Entry")
+            name_col = df.columns[0]
 
-        df = mapping.merge(df, left_on=mapping.columns[1], right_on="Entry")
-        name_col = df.columns[0]
+            df["GOTerm"] = df["Gene Ontology IDs"].str.split('; | |/')
+            df = df[~df["GOTerm"].isna()]
+            df["GO_len"] = df["GOTerm"].apply(len)
+            df = df.sort_values("GO_len",ascending=False).drop_duplicates(df.columns[0], keep="first")
+            symbols = df[["Entry", name_col]]
+            df = df[[name_col, "GOTerm"]]
+            df = df.explode(name_col).explode("GOTerm")
+            df = df[~df["GOTerm"].isna()]
+            # Step 4: Concatenate the original and modified DataFrames
+            df.to_csv(output.go_terms, sep="\t", index=False)
+            symbols.to_csv(output.symbols, sep="\t", index=False)
 
-        df["GOTerm"] = df["Gene Ontology IDs"].str.split('; | |/')
-        df = df[~df["GOTerm"].isna()]
-        df["GO_len"] = df["GOTerm"].apply(len)
-        df = df.sort_values("GO_len",ascending=False).drop_duplicates(df.columns[0], keep="first")
-        symbols = df[["Entry", name_col]]
-        df = df[[name_col, "GOTerm"]]
-        df = df.explode(name_col).explode("GOTerm")
-        df = df[~df["GOTerm"].isna()]
-        # Step 4: Concatenate the original and modified DataFrames
-        df.to_csv(output.go_terms, sep="\t", index=False)
-        symbols.to_csv(output.symbols, sep="\t", index=False)
-
-rule generateOrgDB:
-    input:
-        symbols = rules.prepareOrgGOTerms.output.symbols,
-        go_terms = rules.prepareOrgGOTerms.output.go_terms
-    params:
-        species=config["species"],
-        genus=config["genus"],
-    conda:
-        "../envs/REnvironment.yml"
-    output:
-        annotation_db = directory(
-            os.path.join(config["GOTermDir"], "AnnotationDBs", ORGANISMID)
-        ),
-        finished_file = temporary(
-            os.path.join(config["GOTermDir"], "finished_" + ORGANISMID)
-        )
-    script:
-        "../Rscripts/createAnnotation.R"
+    rule generateOrgDB:
+        input:
+            symbols = rules.prepareOrgGOTerms.output.symbols,
+            go_terms = rules.prepareOrgGOTerms.output.go_terms
+        params:
+            species=config["species"],
+            genus=config["genus"],
+        conda:
+            "../envs/REnvironment.yml"
+        output:
+            annotation_db = directory(
+                os.path.join(config["GOTermDir"], "AnnotationDBs", ORGANISMID)
+            ),
+            finished_file = temporary(
+                os.path.join(config["GOTermDir"], "finished_" + ORGANISMID)
+            )
+        script:
+            "../Rscripts/createAnnotation.R"
 
 

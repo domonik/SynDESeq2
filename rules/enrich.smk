@@ -2,6 +2,9 @@ import os
 
 include: "deseq.smk"
 
+
+ORGDB = os.path.join(config["GOTermDir"], "AnnotationDBs", ORGANISMID)
+
 rule clusterProfilerInstallFromGitHub:
     # This is necessary since they don´t update their conda package
     output:
@@ -26,7 +29,7 @@ rule buildLocalKEGGdb:
 rule GOEnrichment:
     input:
         #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
-        annotation_db = rules.generateOrgDB.output.annotation_db,
+        annotation_db = ORGDB,
         deseq_results = rules.extractDESeqResult.output.result_table
     conda:
         "../envs/REnvironment.yml"
@@ -40,7 +43,7 @@ rule GOEnrichment:
 rule GSEAGO:
     input:
         #cp = rules.clusterProfilerInstallFromGitHub.output.lib,
-        annotation_db = rules.generateOrgDB.output.annotation_db,
+        annotation_db = ORGDB,
         deseq_results = rules.extractDESeqResult.output.result_table,
     conda:
         "../envs/REnvironment.yml"
@@ -53,7 +56,7 @@ rule GSEAGO:
 
 rule SemanticSimilarity:
     input:
-        annotation_db = rules.generateOrgDB.output.annotation_db,
+        annotation_db = ORGDB,
         enrichData = os.path.join(
             config["RUN_DIR"], "PipelineData/Enrichment/GOEnrichment_{updown}_c{condition}_vs_b{baseline}.tsv"
         )

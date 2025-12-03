@@ -18,7 +18,7 @@ RUN_DIR: "RUNS/testDataRun" # The Directory to store results in
 CountFile: "testdata/airway_scaledcounts.csv" # The counts file to use
 initial_sep: ","
 uniprot_mapping: "testdata/ensgene_to_uniprot.tsv"
-
+buildOrgDB: True # "Wheteher to build OrgDB or it is already built and in the expected directory"
 
 Rlib: "Rlib" # Some R packages will be installed here due to version conflicts
 
